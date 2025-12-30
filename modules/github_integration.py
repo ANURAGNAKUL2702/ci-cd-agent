@@ -108,8 +108,9 @@ class GitHubIntegration:
             
             if response.status_code == 200:
                 logger.info(f"Successfully fetched logs for run {run_id}")
-                # Logs are returned as a zip file, we'll return the raw content
-                # In a production system, you'd want to extract and parse the zip
+                # Note: GitHub API returns logs as a zip archive
+                # For production use, you would extract and parse the zip file
+                # For now, returning the raw content as text for basic analysis
                 return response.text
             else:
                 logger.error(f"Failed to fetch logs: HTTP {response.status_code}")

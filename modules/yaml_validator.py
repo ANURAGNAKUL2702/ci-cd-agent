@@ -3,7 +3,6 @@ YAML Validation and Auto-fixing Module
 Validates and fixes YAML syntax in GitHub Actions workflows
 """
 import yaml
-import re
 from typing import Dict, List, Optional, Tuple
 from loguru import logger
 
