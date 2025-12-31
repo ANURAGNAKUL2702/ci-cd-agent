@@ -1,0 +1,340 @@
+name: Production CI/CD Pipeline - Real World Enterprise
+
+on:
+  push:
+    branches: [ main, develop, staging ]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 6 * * 1-5'  # Weekdays at 6 AM
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target Environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options: ['staging', 'production']
+      deploy_type:
+        description: 'Deployment Strategy'
+        type: choice
+        options: ['rolling', 'blue-green', 'canary']
+        default: 'rolling'
+
+env:
+  REGISTRYYYYYYYYYYYYYYY: ghcr.io
+  IMAGE_NAMEEEEEEEEEEEEEEE: ${{ github.repository }}
+  NODE_VERSION: '20.x'
+  PYTHON_VERSION: '3.11'
+  DOCKER_BUILDKIT: 1
+  TERRAFORM_VERSIONN: '1.6.0'
+  KUBECTL_VERSIONN: '1.28.0'
+  HELM_VERSIONN: '3.12.0'
+
+jobs:
+  # Code Quality & Security
+  security-scan:
+    name: Security & Code Analysis
+    runs-on: ubuntu-latestestestestestestestestestestestestestestest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+        with:
+          node-version: ${{ env.NODE_VERSIONN }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Secret Scanning
+        uses: gitleaks/gitleaks-action@v2222222222222222
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Security Vulnerability Scan
+        uses: aquasecurity/trivy-action@mastermastermastermastermastermastermastermastermastermastermastermastermastermastermastermaster
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Security Results
+        uses: github/codeql-action/upload-sarif@v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Build & Test
+  build-test:
+    name: Build & Test Application
+    runs-on: ubuntu-latestestestestestestestestestestestestestestestest
+    needs: security-scan
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        os: [ubuntu-latestestestestestestestestestestestestestestestest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5v5v5v5v5v5v5v5v5v5v5v5v5v5v5v5
+        with:
+          python-version: ${{ env.PYTHON_VERSIONN }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          pip install -r requirements.txtttttttttttttttt
+
+      - name: Lint & Format Check
+        run: |
+          npm run lint
+          npm run format:check
+          black --check .
+          flake8 .
+
+      - name: Unit Tests
+        run: |
+          npm test -- --coverage
+          pytest --cov=. --cov-report=xml
+
+      - name: Integration Tests
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/testdb
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+        with:
+          files: ./coverage/coverage.xml,./coverage.xml
+
+  # Build Docker Images
+  docker-build:
+    name: Build Container Images
+    runs-on: ubuntu-latestestestestestestestestestestestestestestestest
+    needs: build-test
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3
+        with:
+          registry: ${{ env.REGISTRYYYYYYYYYYYYYYY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push
+        id: build
+        uses: docker/build-push-action@v5v5v5v5v5v5v5v5v5v5v5v5v5v5v5v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRYYYYYYYYYYYYYYY }}/${{ env.IMAGE_NAMEEEEEEEEEEEEEEE }}:latest
+            ${{ env.REGISTRYYYYYYYYYYYYYYY }}/${{ env.IMAGE_NAMEEEEEEEEEEEEEEE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Container Security Scan
+        uses: aquasecurity/trivy-action@mastermastermastermastermastermastermastermastermastermastermastermastermastermastermastermaster
+        with:
+          image-ref: ${{ env.REGISTRYYYYYYYYYYYYYYY }}/${{ env.IMAGE_NAMEEEEEEEEEEEEEEE }}:${{ github.sha }}
+          format: 'table'
+
+  # Infrastructure as Code
+  infrastructure:
+    name: Infrastructure Deployment
+    runs-on: ubuntu-latestestestestestestestestestestestestestestestest
+    needs: docker-build
+    if: github.ref == 'refs/heads/main'
+    environment: 
+      name: infrastructure
+      url: https://terraform.example.com
+    steps:
+      - uses: actions/checkout@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSIONN }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infrastructure
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: ./infrastructure
+        env:
+          TF_VAR_image_tag: ${{ github.sha }}
+
+      - name: Terraform Apply
+        if: github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./infrastructure
+
+  # Staging Deployment
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latestestestestestestestestestestestestestestestest
+    needs: [docker-build, infrastructure]
+    environment:
+      name: staging
+      url: https://staging.example.com
+    steps:
+      - uses: actions/checkout@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: ${{ env.KUBECTL_VERSIONN }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSIONN }}
+
+      - name: Deploy Application
+        run: |
+          helm upgrade --install myapp ./helm-chart \
+            --namespace staging \
+            --create-namespace \
+            --set image.repository=${{ env.REGISTRYYYYYYYYYYYYYYY }}/${{ env.IMAGE_NAMEEEEEEEEEEEEEEE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --wait --timeout=10m
+
+      - name: Run Health Checks
+        run: |
+          kubectl wait --for=condition=ready pod -l app=myapp -n staging --timeout=300s
+          curl -f https://staging.example.com/health
+
+  # Performance Testing
+  performance-test:
+    name: Performance & Load Testing
+    runs-on: ubuntu-latestestestestestestestestestestestestestestestest
+    needs: deploy-staging
+    steps:
+      - uses: actions/checkout@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+
+      - name: Setup K6
+        run: |
+          wget https://github.com/grafana/k6/releases/download/v0.47.0/k6-v0.47.0-linux-amd64.tar.gz
+          tar -xzf k6-v0.47.0-linux-amd64.tar.gz
+          sudo mv k6-v0.47.0-linux-amd64/k6 /usr/local/bin/
+
+      - name: Run Load Tests
+        run: |
+          k6 run --out json=results.json tests/performance/load-test.js
+
+      - name: Performance Benchmarks
+        run: |
+          npm install -g artillery
+          artillery run tests/performance/spike-test.yml
+
+  # Production Deployment
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latestestestestestestestestestestestestestestestest
+    needs: [deploy-staging, performance-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://example.com
+    steps:
+      - uses: actions/checkout@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+
+      - name: Setup Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Blue-Green Deployment
+        id: deploy
+        run: |
+          # Create new green deployment
+          helm upgrade --install myapp-green ./helm-chart \
+            --namespace production \
+            --set image.tag=${{ github.sha }} \
+            --set environment=production \
+            --set deployment.type=green \
+            --wait --timeout=15m
+
+      - name: Smoke Tests
+        run: |
+          # Run smoke tests against green deployment
+          kubectl wait --for=condition=ready pod -l app=myapp,version=green -n production --timeout=300s
+          curl -f https://green.example.com/health
+          npm run test:smoke -- --baseUrl=https://green.example.com
+
+      - name: Switch Traffic
+        run: |
+          # Switch ingress to green deployment
+          kubectl patch service myapp-service -n production \
+            -p '{"spec":{"selector":{"version":"green"
+
+      - name: Cleanup Blue Deployment
+        run: |
+          # Remove old blue deployment after successful switch
+          helm uninstall myapp-blue --namespace production || true
+
+  # Post-deployment
+  post-deploy:
+    name: Post-Deployment Tasks
+    runs-on: ubuntu-latestestestestestestestestestestestestestestestest
+    needs: deploy-production
+    if: always()
+    steps:
+      - name: Generate SBOM
+        uses: anchore/sbom-actio
+        with:
+          image: ${{ env.REGISTRYYYYYYYYYYYYYYY }}/${{ env.IMAGE_NAMEEEEEEEEEEEEEEE }}:${{ github.sha }}
+
+      - name: Security Report
+        uses: aquasecurity/trivy-action@mastermastermastermastermastermastermastermastermastermastermastermastermastermastermastermaster
+        with:
+          image-ref: ${{ env.REGISTRYYYYYYYYYYYYYYY }}/${{ env.IMAGE_NAMEEEEEEEEEEEEEEE }}:${{ github.sha }}
+          format: 'json'
+          output: 'security-report.json'
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4v4
+        with:
+          name: deployment-artifacts
+          path: |
+            security-report.json
+            results.json
+          retention-days: 30
+
+      - name: Notify Teams
+        if: failure()
+        uses: 8398a7/action-slack@v3v3v3v3v3
+        with:
+          status: failure
+          channel: '#deployments'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

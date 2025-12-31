@@ -1,0 +1,262 @@
+{
+  "ubuntu-lat": {
+    "error_text": "ubuntu-lat",
+    "fix_suggestion": "Replace 'ubuntu-lat' with 'ubuntu-latest'",
+    "frequency": 4,
+    "first_seen": "2025-12-31T16:13:18.661952",
+    "last_seen": "2025-12-31T16:13:18.737656",
+    "confidence": 0.8,
+    "category": "runner_specification",
+    "pattern_type": "auto_discovered"
+  },
+  "actions_setup-python_": {
+    "error_text": "actions/setup-python@",
+    "fix_suggestion": "Replace 'actions/setup-python@' with 'actions/setup-python@v4'",
+    "frequency": 4,
+    "first_seen": "2025-12-31T16:13:18.663930",
+    "last_seen": "2025-12-31T16:13:18.737672",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "actions_checkout_": {
+    "error_text": "actions/checkout@",
+    "fix_suggestion": "Replace 'actions/checkout@' with 'actions/checkout@v4'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.673696",
+    "last_seen": "2025-12-31T16:13:18.737660",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "gitleaks_gitleaks-action_v": {
+    "error_text": "gitleaks/gitleaks-action@v",
+    "fix_suggestion": "Manual review required for: gitleaks/gitleaks-action@v",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.675671",
+    "last_seen": "2025-12-31T16:13:18.737663",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "aquasecurity_trivy-action_": {
+    "error_text": "aquasecurity/trivy-action@",
+    "fix_suggestion": "Manual review required for: aquasecurity/trivy-action@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.677123",
+    "last_seen": "2025-12-31T16:13:18.737665",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "dependency-check_dependency-check_action_": {
+    "error_text": "dependency-check/Dependency-Check_Action@",
+    "fix_suggestion": "Manual review required for: dependency-check/Dependency-Check_Action@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.678519",
+    "last_seen": "2025-12-31T16:13:18.737667",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "actions_setup-node_": {
+    "error_text": "actions/setup-node@",
+    "fix_suggestion": "Replace 'actions/setup-node@' with 'actions/setup-node@v4'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.680414",
+    "last_seen": "2025-12-31T16:13:18.737670",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "node_versio": {
+    "error_text": "NODE_VERSIO",
+    "fix_suggestion": "Replace 'NODE_VERSIO' with 'NODE_VERSION'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.682223",
+    "last_seen": "2025-12-31T16:13:18.737674",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "python_versio": {
+    "error_text": "PYTHON_VERSIO",
+    "fix_suggestion": "Replace 'PYTHON_VERSIO' with 'PYTHON_VERSION'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.683592",
+    "last_seen": "2025-12-31T16:13:18.737676",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "registr": {
+    "error_text": "REGISTR",
+    "fix_suggestion": "Replace 'REGISTR' with 'REGISTRY'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.685041",
+    "last_seen": "2025-12-31T16:13:18.737678",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "image_nam": {
+    "error_text": "IMAGE_NAM",
+    "fix_suggestion": "Replace 'IMAGE_NAM' with 'IMAGE_NAME'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.686444",
+    "last_seen": "2025-12-31T16:13:18.737680",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "terraform_versio": {
+    "error_text": "TERRAFORM_VERSIO",
+    "fix_suggestion": "Replace 'TERRAFORM_VERSIO' with 'TERRAFORM_VERSION'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.687887",
+    "last_seen": "2025-12-31T16:13:18.737682",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "kubectl_versio": {
+    "error_text": "KUBECTL_VERSIO",
+    "fix_suggestion": "Replace 'KUBECTL_VERSIO' with 'KUBECTL_VERSION'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.689339",
+    "last_seen": "2025-12-31T16:13:18.737684",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "helm_versio": {
+    "error_text": "HELM_VERSIO",
+    "fix_suggestion": "Replace 'HELM_VERSIO' with 'HELM_VERSION'",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.691164",
+    "last_seen": "2025-12-31T16:13:18.737686",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "matrix_analysis__": {
+    "error_text": "matrix.analysis =",
+    "fix_suggestion": "Manual review required for: matrix.analysis =",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.692711",
+    "last_seen": "2025-12-31T16:13:18.737688",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "needs_security-gate_outputs_security-passed__": {
+    "error_text": "needs.security-gate.outputs.security-passed =",
+    "fix_suggestion": "Manual review required for: needs.security-gate.outputs.security-passed =",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.694051",
+    "last_seen": "2025-12-31T16:13:18.737691",
+    "confidence": 0.8,
+    "category": "configuration",
+    "pattern_type": "auto_discovered"
+  },
+  "github_ref__": {
+    "error_text": "github.ref =",
+    "fix_suggestion": "Manual review required for: github.ref =",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.695473",
+    "last_seen": "2025-12-31T16:13:18.737694",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "github_event_name__": {
+    "error_text": "github.event_name =",
+    "fix_suggestion": "Manual review required for: github.event_name =",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.696987",
+    "last_seen": "2025-12-31T16:13:18.737696",
+    "confidence": 0.8,
+    "category": "unknown",
+    "pattern_type": "auto_discovered"
+  },
+  "actions_cache_": {
+    "error_text": "actions/cache@",
+    "fix_suggestion": "Manual review required for: actions/cache@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.698800",
+    "last_seen": "2025-12-31T16:13:18.737698",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "docker_setup-buildx-action_": {
+    "error_text": "docker/setup-buildx-action@",
+    "fix_suggestion": "Manual review required for: docker/setup-buildx-action@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.700452",
+    "last_seen": "2025-12-31T16:13:18.737702",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "docker_login-action_": {
+    "error_text": "docker/login-action@",
+    "fix_suggestion": "Manual review required for: docker/login-action@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.701949",
+    "last_seen": "2025-12-31T16:13:18.737705",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "docker_build-push-action_": {
+    "error_text": "docker/build-push-action@",
+    "fix_suggestion": "Manual review required for: docker/build-push-action@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.703853",
+    "last_seen": "2025-12-31T16:13:18.737707",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "hashicorp_setup-terraform_": {
+    "error_text": "hashicorp/setup-terraform@",
+    "fix_suggestion": "Manual review required for: hashicorp/setup-terraform@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.705876",
+    "last_seen": "2025-12-31T16:13:18.737709",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "anchore_sbom-action_": {
+    "error_text": "anchore/sbom-action@",
+    "fix_suggestion": "Manual review required for: anchore/sbom-action@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.707805",
+    "last_seen": "2025-12-31T16:13:18.737711",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "actions_upload-artifact_": {
+    "error_text": "actions/upload-artifact@",
+    "fix_suggestion": "Manual review required for: actions/upload-artifact@",
+    "frequency": 3,
+    "first_seen": "2025-12-31T16:13:18.709389",
+    "last_seen": "2025-12-31T16:13:18.737713",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  },
+  "actions_setup-java_": {
+    "error_text": "actions/setup-java@",
+    "fix_suggestion": "Manual review required for: actions/setup-java@",
+    "frequency": 2,
+    "first_seen": "2025-12-31T16:13:18.729788",
+    "last_seen": "2025-12-31T16:13:18.737700",
+    "confidence": 0.8,
+    "category": "action_version",
+    "pattern_type": "auto_discovered"
+  }
+}

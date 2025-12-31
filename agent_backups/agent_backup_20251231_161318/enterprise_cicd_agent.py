@@ -27,9 +27,8 @@ class EnterpriseGradeCICDAgent:
         for pass_num in range(1, 6):
             print(f"🔄 Pass {pass_num}: Enterprise-level analysis...")
             
-            # Store content before this pass
-            content_before_pass = current_content
-            fixes_before_pass = len(self.fixes_applied)
+            # Track fixes in this pass
+            pass_fixes = 0
             
             # Apply all production-grade fixes
             fixes = [
@@ -45,14 +44,16 @@ class EnterpriseGradeCICDAgent:
             ]
             
             for fix_func in fixes:
+                before_content = current_content
                 current_content = fix_func(current_content)
+                if current_content != before_content:
+                    pass_fixes += 1
             
-            # Count fixes applied in this pass
-            pass_fixes = len(self.fixes_applied) - fixes_before_pass
+            total_fixes += pass_fixes
             print(f"   Applied {pass_fixes} fixes in this pass")
             
-            # If no fixes OR no content change, we're done
-            if pass_fixes == 0 or current_content == content_before_pass:
+            # If no fixes in this pass, we're done
+            if pass_fixes == 0:
                 print("   ✅ No more fixes needed")
                 break
         
@@ -60,7 +61,7 @@ class EnterpriseGradeCICDAgent:
         current_content = self._enterprise_cleanup(current_content)
         
         print(f"\n📊 Enterprise Fix Summary:")
-        print(f"   Total fixes applied: {len(self.fixes_applied)}")
+        print(f"   Total fixes applied: {total_fixes}")
         print(f"   Production patterns handled: {len(self.fixes_applied)}")
         
         return current_content
@@ -70,80 +71,70 @@ class EnterpriseGradeCICDAgent:
         # Fix quoted 'on' section
         if "'on':" in content:
             content = content.replace("'on':", "on:")
-            self.fixes_applied.append("YAML: 'on' -> on")
-        
+            self.fixes_applied.append("YAML: 'on' → on")
         return content
     
     def _fix_runner_specifications(self, content: str) -> str:
         """Fix runner specifications"""
-        # Fix common runner typos with precise matching to avoid cascading fixes
-        runner_fixes = [
-            ('runs-on: ubuntu-lat', 'runs-on: ubuntu-latest'),
-            ('runs-on: ubuntu-20', 'runs-on: ubuntu-20.04'),
-            ('runs-on: ubuntu-22', 'runs-on: ubuntu-22.04'),
-            ('runs-on: windows-lates', 'runs-on: windows-latest'),
-            ('runs-on: macos-lates', 'runs-on: macos-latest'),
-            ('os: [ubuntu-lat', 'os: [ubuntu-latest'),
-            ('- ubuntu-lat', '- ubuntu-latest'),
-            ('- windows-lates', '- windows-latest'),
-            ('- macos-lates', '- macos-latest')
-        ]
+        # Fix common runner typos
+        runner_fixes = {
+            'ubuntu-lat': 'ubuntu-latest',
+            'ubuntu-lates': 'ubuntu-latest',
+            'ubuntu-20': 'ubuntu-20.04',
+            'ubuntu-22': 'ubuntu-22.04',
+            'windows-lates': 'windows-latest',
+            'macos-lates': 'macos-latest'
+        }
         
-        for incorrect, correct in runner_fixes:
-            if incorrect in content:
-                content = content.replace(incorrect, correct)
-                self.fixes_applied.append(f"Runner: {incorrect.split(': ')[-1] if ': ' in incorrect else incorrect} -> {correct.split(': ')[-1] if ': ' in correct else correct}")
+        for typo, correct in runner_fixes.items():
+            if typo in content:
+                content = content.replace(typo, correct)
+                self.fixes_applied.append(f"Runner: {typo} → {correct}")
         
         return content
     
     def _fix_action_versions(self, content: str) -> str:
         """Fix action version specifications"""
-        # Fix incomplete action versions with context-aware matching
-        action_fixes = [
-            ('uses: actions/checkout@', 'uses: actions/checkout@v4'),
-            ('uses: actions/setup-node@', 'uses: actions/setup-node@v4'),
-            ('uses: actions/setup-python@', 'uses: actions/setup-python@v5'),
-            ('uses: actions/cache@', 'uses: actions/cache@v4'),
-            ('uses: actions/upload-artifact@', 'uses: actions/upload-artifact@v4'),
-            ('uses: docker/setup-buildx-action@', 'uses: docker/setup-buildx-action@v3'),
-            ('uses: docker/login-action@', 'uses: docker/login-action@v3'),
-            ('uses: docker/build-push-action@', 'uses: docker/build-push-action@v5'),
-            ('uses: hashicorp/setup-terraform@', 'uses: hashicorp/setup-terraform@v3'),
-            ('uses: aquasecurity/trivy-action@', 'uses: aquasecurity/trivy-action@master'),
-            ('uses: gitleaks/gitleaks-action@v', 'uses: gitleaks/gitleaks-action@v2'),
-            ('uses: anchore/sbom-action@', 'uses: anchore/sbom-action@v0'),
-            ('uses: github/codeql-action/upload-sarif@', 'uses: github/codeql-action/upload-sarif@v3'),
-            ('uses: codecov/codecov-action@', 'uses: codecov/codecov-action@v4'),
-            ('uses: 8398a7/action-slack@', 'uses: 8398a7/action-slack@v3')
-        ]
+        # Comprehensive action version fixes
+        action_fixes = {
+            'actions/checkt': 'actions/checkout@v4',
+            'actions/checkout@v': 'actions/checkout@v4',
+            'actions/checkout@': 'actions/checkout@v4',
+            'actions/setup-python@v': 'actions/setup-python@v5',
+            'actions/setup-python@': 'actions/setup-python@v5',
+            'actions/setup-node@v': 'actions/setup-node@v4',
+            'actions/setup-node@': 'actions/setup-node@v4',
+            'actions/cache@v': 'actions/cache@v4',
+            'actions/cache@': 'actions/cache@v4',
+            'securecodewarrior/github-action-add-sarif@v': 'securecodewarrior/github-action-add-sarif@v1',
+            'azure/k8s-deploy@v': 'azure/k8s-deploy@v1',
+            'azure/k8s-deploy@': 'azure/k8s-deploy@v1'
+        }
         
-        for incomplete, complete in action_fixes:
+        for incomplete, complete in action_fixes.items():
             if incomplete in content:
                 content = content.replace(incomplete, complete)
-                action_name = incomplete.replace('uses: ', '').replace('@', '').replace('@v', '')
-                self.fixes_applied.append(f"Action: {action_name}@ -> {complete.split('@')[1]}")
+                self.fixes_applied.append(f"Action: {incomplete} → {complete}")
         
         return content
     
     def _fix_environment_variables(self, content: str) -> str:
         """Fix environment variable names and syntax"""
-        # Fix environment variable name typos (only once)
+        # Fix environment variable name typos
         env_fixes = {
             'NODE_VERSIO': 'NODE_VERSION',
             'PYTHON_VERSIO': 'PYTHON_VERSION',
             'REGISTR': 'REGISTRY', 
             'IMAGE_NAM': 'IMAGE_NAME',
-            'TERRAFORM_VERSIO': 'TERRAFORM_VERSION',
-            'KUBECTL_VERSIO': 'KUBECTL_VERSION',
-            'HELM_VERSIO': 'HELM_VERSION',
-            'PYTHONPTH': 'PYTHONPATH'
+            'PYTHONPTH': 'PYTHONPATH',
+            'PYTHOH': 'PYTHONPATH',
+            'PYTHATH': 'PYTHONPATH'
         }
         
         for typo, correct in env_fixes.items():
-            # Only fix if typo exists and correct version doesn't exist
-            if typo in content and correct + 'N' not in content:  # Prevent VERSIONNN
+            if typo in content:
                 content = content.replace(typo, correct)
-                self.fixes_applied.append(f"Env var: {typo} -> {correct}")
+                self.fixes_applied.append(f"Env var: {typo} → {correct}")
         
         return content
     
@@ -156,7 +147,7 @@ class EnterpriseGradeCICDAgent:
         content = re.sub(r'(github\.event_name)\s*=\s*([^=])', r'\1 == \2', content)
         
         if content != original_content:
-            self.fixes_applied.append("GitHub context: = -> ==")
+            self.fixes_applied.append("GitHub context: = → ==")
         
         return content
     
@@ -168,7 +159,7 @@ class EnterpriseGradeCICDAgent:
         content = re.sub(r'\btimeout:\s*(\d+)', r'timeout-minutes: \1', content)
         
         if content != original_content:
-            self.fixes_applied.append("Timeout: timeout -> timeout-minutes")
+            self.fixes_applied.append("Timeout: timeout → timeout-minutes")
         
         return content
     
@@ -184,7 +175,7 @@ class EnterpriseGradeCICDAgent:
         for typo, correct in file_fixes.items():
             if typo in content:
                 content = content.replace(typo, correct)
-                self.fixes_applied.append(f"File: {typo} -> {correct}")
+                self.fixes_applied.append(f"File: {typo} → {correct}")
         
         return content
     
@@ -195,50 +186,17 @@ class EnterpriseGradeCICDAgent:
                 'permissions: write-all',
                 'permissions:\n  contents: read\n  packages: write\n  security-events: write\n  deployments: write'
             )
-            self.fixes_applied.append("Permissions: write-all -> specific permissions")
+            self.fixes_applied.append("Permissions: write-all → specific permissions")
         
         return content
     
     def _fix_deployment_configs(self, content: str) -> str:
         """Fix deployment configurations"""
-        # Fix deployment environments that need values
-        # But avoid workflow_dispatch inputs and environment objects
-        import re
+        # Add environment name if missing
+        if re.search(r'environment:\s*$', content, re.MULTILINE):
+            content = re.sub(r'environment:\s*$', 'environment: staging', content, flags=re.MULTILINE)
+            self.fixes_applied.append("Environment: added name")
         
-        lines = content.split('\n')
-        modified = False
-        in_workflow_inputs = False
-        
-        for i, line in enumerate(lines):
-            # Track if we're in workflow_dispatch inputs section
-            if 'workflow_dispatch:' in line:
-                in_workflow_inputs = True
-            elif 'jobs:' in line or not line.startswith(' '):
-                in_workflow_inputs = False
-            
-            # Skip environment fixes inside workflow_dispatch inputs
-            if in_workflow_inputs:
-                continue
-                
-            # Look for standalone environment: with no value in job contexts
-            if re.match(r'^\s*environment:\s*$', line):
-                # Check next line to see if it's an object property
-                next_line_idx = i + 1
-                if next_line_idx < len(lines):
-                    next_line = lines[next_line_idx].strip()
-                    # If next line is a property like 'name:' or 'url:', it's an object
-                    if next_line.startswith('name:') or next_line.startswith('url:'):
-                        # This is an environment object, don't modify
-                        continue
-                
-                # This is likely a deployment environment that needs a name
-                lines[i] = line.rstrip() + ' staging'
-                modified = True
-                self.fixes_applied.append("Environment: added staging deployment")
-        
-        if modified:
-            content = '\n'.join(lines)
-            
         return content
     
     def _enterprise_cleanup(self, content: str) -> str:
